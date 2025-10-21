@@ -1,0 +1,65 @@
+{
+  "employees": [
+    {
+      "id": "emp_1",
+      "name": "Gabriela Aller",
+      "email": "allerchirinosg@gmail.com",
+      "phone": "976238998",
+      "category": "Administrativo",
+      "monthly_salary": 5700.0,
+      "monthly_daily_wage": 190.0,
+      "monthly_work_records": [
+        {
+          "year": 2025,
+          "month": 4,
+          "days_worked": 27,
+          "advances": 150.0,
+          "loans": 180.0,
+          "payments": [
+            {
+              "date": "2025-10-21T10:47:49.072360",
+              "amount": 250.0
+            }
+          ]
+        },
+        {
+          "year": 2025,
+          "month": 6,
+          "days_worked": 27,
+          "advances": 50.0,
+          "loans": 60.0,
+          "payments": [
+            {
+              "date": "2025-10-21T10:49:34.686481",
+              "amount": 250.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "emp_2",
+      "name": "Ruben Aller",
+      "email": "ruben@gmail.com",
+      "phone": "976238998",
+      "category": "Administrativo",
+      "monthly_salary": 5500.0,
+      "monthly_daily_wage": 183.33333333333334,
+      "monthly_work_records": [
+        {
+          "year": 2025,
+          "month": 4,
+          "days_worked": 27,
+          "advances": 50.0,
+          "loans": 60.0,
+          "payments": [
+            {
+              "date": "2025-10-21T10:48:45.142889",
+              "amount": 250.0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
