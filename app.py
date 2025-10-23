@@ -98,6 +98,10 @@ st.dataframe(df.drop(columns=["id"]) if not df.empty else pd.DataFrame())
 st.subheader("Acciones por empleado")
 col1, col2 = st.columns([2,3])
 
+# Guardar en session_state qué empleado se está editando
+if "edit_mode" not in st.session_state:
+    st.session_state.edit_mode = None
+
 with col1:
     emp_sel = st.selectbox("Seleccionar empleado", ["--"] + [f"{e['id']} - {e['name']}" for e in employees])
     if emp_sel and emp_sel != "--":
@@ -105,14 +109,18 @@ with col1:
         emp = find_employee(data, emp_id)
         st.markdown(f"**{emp['name']}** - Salario diario: {format_currency(emp['monthly_daily_wage'])}")
 
-        # Edit basic info
+        # ---- Editar info básica ----
         if st.button("Editar info básica"):
-            with st.form("edit_basic"):
+            st.session_state.edit_mode = emp_id  # activar edición
+
+        if st.session_state.edit_mode == emp_id:
+            st.markdown("### Editar información del empleado")
+            with st.form("edit_basic_form"):
                 new_name = st.text_input("Nombre", value=emp["name"])
                 new_email = st.text_input("Email", value=emp.get("email",""))
                 new_phone = st.text_input("Teléfono", value=emp.get("phone",""))
                 new_salary = st.number_input("Salario mensual (S/)", value=emp.get("monthly_salary",0.0))
-                save_btn = st.form_submit_button("Guardar")
+                save_btn = st.form_submit_button("Guardar cambios")
                 if save_btn:
                     emp["name"] = new_name
                     emp["email"] = new_email
@@ -120,15 +128,20 @@ with col1:
                     emp["monthly_salary"] = float(new_salary)
                     emp["monthly_daily_wage"] = float(new_salary)/30.0
                     save_data(data)
-                    st.success("Empleado actualizado")
+                    st.success("Empleado actualizado correctamente ✅")
+                    st.session_state.edit_mode = None
+                    st.rerun()
 
-        if st.button("Eliminar empleado"):
-            confirm = st.checkbox("Confirmar eliminación")
+        # ---- Eliminar empleado ----
+        st.markdown("---")
+        st.markdown("### Eliminar empleado")
+        if st.button("Eliminar empleado permanentemente"):
+            confirm = st.checkbox("Confirmar eliminación definitiva")
             if confirm:
-                data["employees"] = [e for e in data["employees"] if e["id"]!=emp_id]
+                data["employees"] = [e for e in data["employees"] if e["id"] != emp_id]
                 save_data(data)
-                st.success("Empleado eliminado")
-                st.experimental_rerun()
+                st.success("Empleado eliminado correctamente 🗑️")
+                st.rerun()
 
 with col2:
     if emp_sel and emp_sel != "--":
@@ -140,7 +153,7 @@ with col2:
         with c1:
             year = st.number_input("Año", value=datetime.now().year, step=1)
             month = st.selectbox("Mes", list(range(1,13)), index=datetime.now().month-1)
-            days = st.number_input("Días trabajados", min_value=0, value=0, step=1)
+            days = st.number_input("Días trabajados", value=0, step=1)  # permite negativos
         with c2:
             advances = st.number_input("Adelantos (S/)", min_value=0.0, value=0.0, step=10.0)
             loans = st.number_input("Préstamos (S/)", min_value=0.0, value=0.0, step=10.0)
@@ -151,12 +164,12 @@ with col2:
             rec["days_worked"] = int(days)
             rec["advances"] = float(rec.get("advances",0.0)) + float(advances)
             rec["loans"] = float(rec.get("loans",0.0)) + float(loans)
-            if payment_amount and payment_amount>0:
+            if payment_amount and payment_amount > 0:
                 rec.setdefault("payments", []).append({"date": datetime.now().isoformat(), "amount": float(payment_amount)})
             save_data(data)
-            st.success("Registro mensual guardado")
+            st.success("Registro mensual guardado ✅")
 
-        # show history
+        # Historial mensual
         st.markdown("#### Historial (meses)")
         recs = sorted(emp.get("monthly_work_records", []), key=lambda r: (r["year"], r["month"]), reverse=True)
         for r in recs:
@@ -224,3 +237,4 @@ with rcol3:
 # --- Footer / save on changes already handled by save_data calls ---
 st.markdown("---")
 st.caption("Datos guardados en data.json en la carpeta del proyecto.")
+
