@@ -135,13 +135,24 @@ with col1:
         # ---- Eliminar empleado ----
         st.markdown("---")
         st.markdown("### Eliminar empleado")
-        if st.button("Eliminar empleado permanentemente"):
-            confirm = st.checkbox("Confirmar eliminación definitiva")
-            if confirm:
-                data["employees"] = [e for e in data["employees"] if e["id"] != emp_id]
-                save_data(data)
-                st.success("Empleado eliminado correctamente 🗑️")
-                st.rerun()
+
+        delete_col1, delete_col2 = st.columns([1,2])
+        with delete_col1:
+            confirm_delete = st.checkbox("Confirmar eliminación definitiva")
+
+        with delete_col2:
+            delete_btn = st.button("🗑️ Eliminar empleado permanentemente")
+
+        # Ejecutar eliminación sólo si ambas condiciones se cumplen
+        if delete_btn and confirm_delete:
+            data["employees"] = [e for e in data["employees"] if e["id"] != emp_id]
+            save_data(data)
+            st.success(f"Empleado '{emp['name']}' eliminado correctamente ✅")
+            st.session_state.edit_mode = None
+            st.rerun()
+        elif delete_btn and not confirm_delete:
+            st.warning("Debes marcar la casilla de confirmación antes de eliminar.")
+
 
 with col2:
     if emp_sel and emp_sel != "--":
@@ -237,4 +248,5 @@ with rcol3:
 # --- Footer / save on changes already handled by save_data calls ---
 st.markdown("---")
 st.caption("Datos guardados en data.json en la carpeta del proyecto.")
+
 
