@@ -198,14 +198,32 @@ with col2:
         # Historial mensual
         st.markdown("#### Historial (meses)")
         recs = sorted(emp.get("monthly_work_records", []), key=lambda r: (r["year"], r["month"]), reverse=True)
+        
         for r in recs:
             daily = emp.get("monthly_daily_wage", 0.0)
-            earned = r.get("days_worked",0)*daily
-            payments = sum([p.get("amount",0) for p in r.get("payments",[])])
-            pending = earned - r.get("advances",0.0) - r.get("loans",0.0) - payments
-            st.write(f"{r['year']}-{r['month']:02d}: Días {r['days_worked']} • Ganado {format_currency(earned)} • Adelantos {format_currency(r.get('advances',0.0))} • Préstamos {format_currency(r.get('loans',0.0))} • Pagos {format_currency(payments)} • Pendiente {format_currency(pending)}")
-            if r.get("comment"):
-                st.info(f"🗒️ Comentario: {r['comment']}")
+            earned = r.get("days_worked", 0) * daily
+            payments = sum([p.get("amount", 0) for p in r.get("payments", [])])
+            pending = earned - r.get("advances", 0.0) - r.get("loans", 0.0) - payments
+
+            with st.expander(f"{r['year']}-{r['month']:02d} | Días: {r['days_worked']} | Pendiente: {format_currency(pending)}"):
+                st.write(f"**Ganado:** {format_currency(earned)}")
+                st.write(f"**Adelantos:** {format_currency(r.get('advances', 0.0))}")
+                st.write(f"**Préstamos:** {format_currency(r.get('loans', 0.0))}")
+                st.write(f"**Pagos:** {format_currency(payments)}")
+                st.write(f"**Pendiente:** {format_currency(pending)}")
+
+                # --- 🗒️ Comentario editable ---
+                st.markdown("**Comentario / observaciones del mes**")
+                edited_comment = st.text_area(
+                    f"Comentario_{r['year']}_{r['month']}",
+                    value=r.get("comment", ""),
+                    height=80
+                )
+                if st.button(f"💾 Guardar comentario {r['year']}-{r['month']:02d}"):
+                    r["comment"] = edited_comment.strip()
+                    save_data(data)
+                    st.success("Comentario actualizado correctamente ✅")
+                    st.rerun()
 
 # --- Reports & exports ---
 st.subheader("Reportes mensuales y exportar")
@@ -265,6 +283,7 @@ with rcol3:
 # --- Footer / save on changes already handled by save_data calls ---
 st.markdown("---")
 st.caption("Datos guardados en data.json en la carpeta del proyecto.")
+
 
 
 
