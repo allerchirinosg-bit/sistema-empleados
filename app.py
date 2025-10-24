@@ -42,9 +42,17 @@ def next_id(data):
 # ---------- data model helpers ----------
 def ensure_month_record(emp, year, month):
     recs = emp.setdefault("monthly_work_records", [])
-    rec = next((r for r in recs if r["year"]==year and r["month"]==month), None)
+    rec = next((r for r in recs if r["year"] == year and r["month"] == month), None)
     if not rec:
-        rec = {"year":year,"month":month,"days_worked":0,"advances":0.0,"loans":0.0,"payments":[]}
+        rec = {
+            "year": year,
+            "month": month,
+            "days_worked": 0,
+            "advances": 0.0,
+            "loans": 0.0,
+            "payments": [],
+            "comment": ""  # 🆕 nuevo campo para observaciones
+        }
         recs.append(rec)
     return rec
 
@@ -248,5 +256,6 @@ with rcol3:
 # --- Footer / save on changes already handled by save_data calls ---
 st.markdown("---")
 st.caption("Datos guardados en data.json en la carpeta del proyecto.")
+
 
 
